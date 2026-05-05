@@ -1,0 +1,78 @@
+import type { Difficulty, DifficultyConfig } from '../types'
+
+export const DIFFICULTIES: Record<Difficulty, DifficultyConfig> = {
+  easy: {
+    label: 'Easy',
+    icon: '🟢',
+    cols: 4,
+    rows: 4,
+    pairs: 8,
+    timeLimit: 120,
+    color: '#22c55e',
+  },
+  medium: {
+    label: 'Medium',
+    icon: '🟡',
+    cols: 5,
+    rows: 4,
+    pairs: 10,
+    timeLimit: 150,
+    color: '#0793DE',
+  },
+  hard: {
+    label: 'Hard',
+    icon: '🔴',
+    cols: 6,
+    rows: 6,
+    pairs: 18,
+    timeLimit: 180,
+    color: '#ef4444',
+  },
+}
+
+export const EMOJIS = [
+  '🐶',
+  '🐱',
+  '🦊',
+  '🐻',
+  '🐼',
+  '🦁',
+  '🐯',
+  '🐨',
+  '🐸',
+  '🦋',
+  '🦄',
+  '🐙',
+  '🦑',
+  '🦈',
+  '🐬',
+  '🦅',
+  '🦚',
+  '🦜',
+  '🐢',
+  '🦎',
+  '🐝',
+  '🐛',
+  '🦩',
+  '🐧',
+  '🦆',
+  '🦉',
+  '🐺',
+  '🦝',
+  '🦦',
+  '🦥',
+  '🐗',
+  '🦌',
+  '🐑',
+  '🐐',
+  '🦓',
+  '🦏',
+  '🐘',
+  '🦒',
+  '🦘',
+  '🐊',
+]
+
+export const FLIP_DELAY = 900
+export const MATCH_ANIM = 400
+export const PREVIEW_DURATION = 2000

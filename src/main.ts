@@ -1,119 +1,125 @@
 import './style.css'
+import type { AppState, Difficulty, GameState, ScreenView } from './types'
+import { renderHeader } from './components/Header'
+import { renderDifficultyNav } from './components/DifficultyNav'
+import { renderMenu } from './components/Menu'
+import { renderBoard } from './components/Board'
+import { renderWinScreen, renderTimeoutScreen } from './components/WinScreen'
+import { renderConfirmExit } from './components/ConfirmExit'
+import {
+  DIFFICULTIES,
+  FLIP_DELAY,
+  MATCH_ANIM,
+  PREVIEW_DURATION,
+} from './utils/constants'
+import { buildCards, calculateFinalScore } from './utils/gameLogic'
+import { loadBestScores, saveBestScore, loadSettings, saveSettings } from './utils/storage'
+import { playSound, setSoundEnabled } from './utils/sounds'
 
-// ── Types ──────────────────────────────────────────────────────────────────
-type Difficulty = 'easy' | 'medium' | 'hard'
-type GameState = 'idle' | 'playing' | 'won'
-
-interface Card {
-  id: number
-  emoji: string
-  pairId: number
-  flipped: boolean
-  matched: boolean
+// ── Global State ───────────────────────────────────────────────────────────
+let state: AppState = {
+  currentView: 'detail-level',
+  gameData: {
+    cards: [],
+    flippedCards: [],
+    matchedPairs: 0,
+    moves: 0,
+    score: 0,
+    timeLeft: 0,
+    gameState: 'idle',
+    currentDifficulty: 'easy',
+    isChecking: false,
+  },
+  bestScores: {},
+  soundEnabled: true,
+  darkMode: false,
 }
 
-interface DifficultyConfig {
-  label: string
-  icon: string
-  cols: number
-  rows: number
-  pairs: number
-  timeLimit: number
-  color: string
-}
-
-// ── Constants ──────────────────────────────────────────────────────────────
-const DIFFICULTIES: Record<Difficulty, DifficultyConfig> = {
-  easy:   { label: 'Easy',   icon: '', cols: 4, rows: 4, pairs: 8,  timeLimit: 120, color: '#22c55e' },
-  medium: { label: 'Medium', icon: '', cols: 5, rows: 4, pairs: 10, timeLimit: 150, color: '#0793DE' },
-  hard:   { label: 'Hard',   icon: '', cols: 6, rows: 6, pairs: 18, timeLimit: 210, color: '#ef4444' },
-}
-
-const EMOJIS = [
-  '🐶','🐱','🦊','🐻','🐼','🦁','🐯','🐨','🐸','🦋',
-  '🦄','🐙','🦑','🦈','🐬','🦅','🦚','🦜','🐢','🦎',
-  '🐝','🐛','🦩','🐧','🦆','🦉','🐺','🦝','🦦','🦥',
-  '🐗','🦌','🐑','🐐','🦓','🦏','🐘','🦒','🦘','🐊',
-]
-
-const FLIP_DELAY = 900
-const MATCH_ANIM = 400
-
-// ── State ──────────────────────────────────────────────────────────────────
-let cards: Card[] = []
-let flippedCards: number[] = []
-let matchedPairs = 0
-let moves = 0
-let score = 0
-let gameState: GameState = 'idle'
-let currentDifficulty: Difficulty = 'easy'
 let timerInterval: ReturnType<typeof setInterval> | null = null
-let timeLeft = 0
-let isChecking = false
-let bestScores: Partial<Record<Difficulty, number>> = {}
-
 const app = document.querySelector<HTMLDivElement>('#app')!
 
-// ── Init ───────────────────────────────────────────────────────────────────
+// ── Initialization ─────────────────────────────────────────────────────────
 function init() {
-  loadBestScores()
-  renderApp()
+  const settings = loadSettings()
+  state.bestScores = loadBestScores()
+  state.soundEnabled = settings.soundEnabled
+  state.darkMode = settings.darkMode
+
+  setSoundEnabled(state.soundEnabled)
+  applyDarkMode(state.darkMode)
+  render()
+  attachGlobalListeners()
 }
 
-function loadBestScores() {
-  try {
-    const saved = localStorage.getItem('memGame_v2')
-    if (saved) bestScores = JSON.parse(saved)
-  } catch {}
-}
-
-function saveBestScore(d: Difficulty, s: number) {
-  if (s > (bestScores[d] ?? 0)) {
-    bestScores[d] = s
-    localStorage.setItem('memGame_v2', JSON.stringify(bestScores))
+function applyDarkMode(isDark: boolean) {
+  if (isDark) {
+    document.documentElement.classList.add('dark-mode')
+  } else {
+    document.documentElement.classList.remove('dark-mode')
   }
 }
 
 // ── Render ─────────────────────────────────────────────────────────────────
-function renderApp() {
-  const cfg = DIFFICULTIES[currentDifficulty]
+function render() {
   app.innerHTML = `
     <div class="shell">
-      <header class="topbar">
-        <div class="brand">
-          <span class="brand-icon">🃏</span>
-          <span class="brand-name">MemFlip</span>
-        </div>
-        <div class="live-stats" id="live-stats"></div>
-      </header>
-
-      <nav class="level-nav">
-        ${(Object.keys(DIFFICULTIES) as Difficulty[]).map(d => {
-          const dc = DIFFICULTIES[d]
-          const best = bestScores[d]
-          return `
-            <button class="level-btn ${d === currentDifficulty ? 'active' : ''}"
-                    data-diff="${d}"
-                    style="--lc:${dc.color}">
-              <span class="level-icon">${dc.icon}</span>
-              <span class="level-label">${dc.label}</span>
-              ${best !== undefined ? `<span class="level-best">${best}pt</span>` : ''}
-            </button>
-          `
-        }).join('')}
-      </nav>
-
+      ${renderHeader(state)}
+      ${renderDifficultyNav(state)}
       <main id="main-area">
-        ${gameState === 'idle' ? renderHome(cfg) : renderBoard()}
+        ${renderMainContent()}
       </main>
     </div>
   `
-  attachListeners()
-  if (gameState === 'playing') updateLiveStats()
+  attachEventListeners()
 }
 
-function renderHome(cfg: DifficultyConfig) {
-  const best = bestScores[currentDifficulty]
+function renderMainContent(): string {
+  // Tampil halaman detail level (dengan Play Now)
+  if (state.currentView === 'detail-level' && state.gameData.gameState === 'idle') {
+    return renderDifficultyDetail()
+  }
+
+  // Tampil board game
+  let content = renderBoard(state)
+
+  if (state.gameData.gameState === 'won') {
+    content += renderWinScreen(state)
+  } else if (state.gameData.gameState === 'timeout') {
+    content += renderTimeoutScreen(state)
+  }
+
+  if (state.currentView === 'confirm-exit') {
+    content += renderConfirmExit()
+  }
+
+  return content
+}
+
+function renderSelectLevel(): string {
+  return `
+    <div class="select-level-container">
+      <div class="select-level-cards">
+        ${(Object.keys(DIFFICULTIES) as Difficulty[]).map(d => {
+          const dc = DIFFICULTIES[d]
+          const best = state.bestScores[d]
+          return `
+            <button class="difficulty-card" data-diff="${d}" style="--lc:${dc.color}">
+              <div class="difficulty-card-icon">${dc.icon}</div>
+              <div class="difficulty-card-name">${dc.label}</div>
+              <div class="difficulty-card-info">${dc.cols}×${dc.rows} • ${dc.timeLimit}s</div>
+              ${best !== undefined ? `<div class="difficulty-card-best">🏆 ${best}</div>` : ''}
+            </button>
+          `
+        }).join('')}
+      </div>
+    </div>
+  `
+}
+
+function renderDifficultyDetail(): string {
+  const cfg = DIFFICULTIES[state.gameData.currentDifficulty]
+  const best = state.bestScores[state.gameData.currentDifficulty]
+
   return `
     <div class="home">
       <div class="home-card">
@@ -125,9 +131,7 @@ function renderHome(cfg: DifficultyConfig) {
           <span class="badge">⏱ ${cfg.timeLimit}s</span>
         </div>
         <h1 class="home-title">Match all<br><em>${cfg.pairs} pairs!</em></h1>
-        ${best !== undefined ? `
-          <div class="home-best">🏆 Best: <strong>${best} pts</strong></div>
-        ` : ''}
+        ${best !== undefined ? `<div class="home-best">🏆 Best: <strong>${best} pts</strong></div>` : ''}
         <button class="play-btn" id="btn-start">
           ▶ &nbsp;Play Now
         </button>
@@ -135,126 +139,78 @@ function renderHome(cfg: DifficultyConfig) {
       </div>
 
       <div class="preview-grid" style="--cols:${cfg.cols}">
-        ${Array.from({length: cfg.cols * cfg.rows}).map((_, i) => `
-          <div class="preview-card" style="animation-delay:${i * 0.04}s"></div>
-        `).join('')}
+        ${Array.from({ length: cfg.cols * cfg.rows })
+          .map((_, i) => `<div class="preview-card" style="animation-delay:${i * 0.04}s"></div>`)
+          .join('')}
       </div>
     </div>
   `
 }
 
-function renderBoard() {
-  const cfg = DIFFICULTIES[currentDifficulty]
-  return `
-    <div class="board-wrap">
-      <div class="board" id="board" style="--cols:${cfg.cols}">
-        ${cards.map(renderCard).join('')}
-      </div>
-    </div>
-    ${gameState === 'won' ? renderWin() : ''}
-  `
+// ── Game Logic ─────────────────────────────────────────────────────────────
+function startGame() {
+  const cfg = DIFFICULTIES[state.gameData.currentDifficulty]
+  state.gameData.cards = buildCards(state.gameData.currentDifficulty)
+  state.gameData.flippedCards = []
+  state.gameData.matchedPairs = 0
+  state.gameData.moves = 0
+  state.gameData.score = 0
+  state.gameData.isChecking = false
+  state.gameData.timeLeft = cfg.timeLimit
+  state.gameData.gameState = 'playing'
+  state.currentView = 'game'
+
+  render()
+  playSound('flip')
+  
+  // Langsung mulai timer tanpa preview
+  startTimer()
 }
 
-function renderCard(card: Card) {
-  const cls = ['card', card.flipped ? 'is-flipped' : '', card.matched ? 'is-matched' : ''].filter(Boolean).join(' ')
-  return `
-    <button class="${cls}" data-id="${card.id}" aria-label="Memory card">
-      <span class="card-face card-face--front">
-        <span class="card-dot"></span>
-      </span>
-      <span class="card-face card-face--back">${card.emoji}</span>
-    </button>
-  `
-}
-
-function renderWin() {
-  const best = bestScores[currentDifficulty] ?? 0
-  const isRecord = score >= best
-  return `
-    <div class="modal-bg">
-      <div class="modal">
-        <div class="modal-top">${isRecord ? '🏆' : '🎉'}</div>
-        <h2 class="modal-title">${isRecord ? 'New Record!' : 'You Win!'}</h2>
-        <div class="modal-scores">
-          <div class="score-block"><div class="score-val">${score}</div><div class="score-lbl">Score</div></div>
-          <div class="score-block"><div class="score-val">${moves}</div><div class="score-lbl">Moves</div></div>
-          <div class="score-block"><div class="score-val">${timeLeft}s</div><div class="score-lbl">Left</div></div>
-        </div>
-        <button class="play-btn play-btn--sm" id="btn-play-again">▶ Play Again</button>
-        <button class="ghost-btn" id="btn-menu">Main Menu</button>
-      </div>
-    </div>
-  `
-}
-
-function renderTimeout() {
-  const area = document.getElementById('main-area')
-  if (!area) return
-  const el = document.createElement('div')
-  el.className = 'modal-bg'
-  el.innerHTML = `
-    <div class="modal modal--timeout">
-      <div class="modal-top">⏰</div>
-      <h2 class="modal-title">Time's Up!</h2>
-      <p class="modal-sub">You matched <strong>${matchedPairs}</strong> of <strong>${DIFFICULTIES[currentDifficulty].pairs}</strong> pairs</p>
-      <button class="play-btn play-btn--sm" id="btn-retry">▶ Try Again</button>
-      <button class="ghost-btn" id="btn-menu2">Main Menu</button>
-    </div>
-  `
-  area.appendChild(el)
-  el.querySelector('#btn-retry')?.addEventListener('click', startGame)
-  el.querySelector('#btn-menu2')?.addEventListener('click', goMenu)
+function updateBoard() {
+  const board = document.getElementById('board')
+  if (!board) return
+  board.innerHTML = state.gameData.cards.map(card => {
+    const cls = ['card', card.flipped ? 'is-flipped' : '', card.matched ? 'is-matched' : '']
+      .filter(Boolean)
+      .join(' ')
+    return `
+      <button class="${cls}" data-id="${card.id}" aria-label="Memory card">
+        <span class="card-face card-face--front"><span class="card-dot"></span></span>
+        <span class="card-face card-face--back">${card.emoji}</span>
+      </button>
+    `
+  }).join('')
 }
 
 function updateLiveStats() {
   const el = document.getElementById('live-stats')
   if (!el) return
-  const pct = (timeLeft / DIFFICULTIES[currentDifficulty].timeLimit) * 100
-  const urgent = timeLeft <= 20
+
+  const cfg = DIFFICULTIES[state.gameData.currentDifficulty]
+  const pct = (state.gameData.timeLeft / cfg.timeLimit) * 100
+  const urgent = state.gameData.timeLeft <= 20
+
   el.innerHTML = `
-    <div class="stat-chip ${urgent ? 'urgent' : ''}">⏱ <strong>${timeLeft}</strong></div>
+    <div class="stat-chip ${urgent ? 'urgent' : ''}">⏱ <strong>${state.gameData.timeLeft}</strong></div>
     <div class="timer-bar-wrap">
       <div class="timer-bar-fill" style="width:${pct}%;background:${urgent ? '#ef4444' : '#4ade80'}"></div>
     </div>
-    <div class="stat-chip">↩ <strong>${moves}</strong></div>
-    <div class="stat-chip chip-score">⭐ <strong>${score}</strong></div>
+    <div class="stat-chip">↩ <strong>${state.gameData.moves}</strong></div>
+    <div class="stat-chip chip-score">⭐ <strong>${state.gameData.score}</strong></div>
   `
-}
-
-// ── Game Logic ─────────────────────────────────────────────────────────────
-function buildCards(d: Difficulty): Card[] {
-  const { pairs } = DIFFICULTIES[d]
-  const pool = [...EMOJIS].sort(() => Math.random() - 0.5).slice(0, pairs)
-  // Assign pairId by index (not indexOf) to avoid collision when emoji appears twice
-  const doubled = [
-    ...pool.map((emoji, idx) => ({ emoji, pairId: idx })),
-    ...pool.map((emoji, idx) => ({ emoji, pairId: idx })),
-  ].sort(() => Math.random() - 0.5)
-  return doubled.map(({ emoji, pairId }, i) => ({
-    id: i, emoji, pairId,
-    flipped: false, matched: false,
-  }))
-}
-
-function startGame() {
-  cards = buildCards(currentDifficulty)
-  flippedCards = []; matchedPairs = 0; moves = 0; score = 0
-  isChecking = false
-  timeLeft = DIFFICULTIES[currentDifficulty].timeLimit
-  gameState = 'playing'
-  renderApp()
-  startTimer()
 }
 
 function startTimer() {
   if (timerInterval) clearInterval(timerInterval)
+
   timerInterval = setInterval(() => {
-    timeLeft--
+    state.gameData.timeLeft--
     updateLiveStats()
-    if (timeLeft <= 0) {
+
+    if (state.gameData.timeLeft <= 0) {
       clearInterval(timerInterval!)
-      gameState = 'idle'
-      renderTimeout()
+      handleTimeout()
     }
   }, 1000)
 }
@@ -263,83 +219,184 @@ function stopTimer() {
   if (timerInterval) clearInterval(timerInterval)
 }
 
+function handleTimeout() {
+  stopTimer()
+  state.gameData.gameState = 'timeout'
+  render()
+}
+
 function flipCard(id: number) {
-  // Guard: already checking, already have 2 flipped, or card already in flipped list
-  if (isChecking) return
-  if (flippedCards.length >= 2) return
-  if (flippedCards.includes(id)) return
-  const card = cards[id]
+  if (state.gameData.isChecking) return
+  if (state.gameData.flippedCards.length >= 2) return
+  if (state.gameData.flippedCards.includes(id)) return
+
+  const card = state.gameData.cards[id]
   if (!card || card.matched || card.flipped) return
+
   card.flipped = true
-  flippedCards.push(id)
+  state.gameData.flippedCards.push(id)
+  playSound('flip')
+
   const el = document.querySelector(`.card[data-id="${id}"]`)
   el?.classList.add('is-flipped')
   el?.classList.add('card--tap')
-  setTimeout(() => el?.classList.remove('card--tap'), 200)
-  if (flippedCards.length === 2) { moves++; updateLiveStats(); checkMatch() }
-}
 
-function resetTurn() {
-  flippedCards = []
-  isChecking = false
+  setTimeout(() => el?.classList.remove('card--tap'), 200)
+
+  if (state.gameData.flippedCards.length === 2) {
+    state.gameData.moves++
+    updateLiveStats()
+    checkMatch()
+  }
 }
 
 function checkMatch() {
-  isChecking = true
-  const [a, b] = flippedCards
-  const ca = cards[a], cb = cards[b]
+  state.gameData.isChecking = true
+  const [a, b] = state.gameData.flippedCards
+  const cardA = state.gameData.cards[a]
+  const cardB = state.gameData.cards[b]
 
   setTimeout(() => {
-    if (ca.pairId === cb.pairId) {
+    if (cardA.pairId === cardB.pairId) {
       // ✅ Match!
-      ca.matched = cb.matched = true
-      matchedPairs++
-      score += Math.max(10, Math.floor(timeLeft / 5))
+      cardA.matched = cardB.matched = true
+      state.gameData.matchedPairs++
+      state.gameData.score += Math.max(10, Math.floor(state.gameData.timeLeft / 5))
+      playSound('match')
+
       document.querySelector(`.card[data-id="${a}"]`)?.classList.add('is-matched')
       document.querySelector(`.card[data-id="${b}"]`)?.classList.add('is-matched')
+
       updateLiveStats()
-      resetTurn()
-      if (matchedPairs === DIFFICULTIES[currentDifficulty].pairs) {
+      state.gameData.flippedCards = []
+      state.gameData.isChecking = false
+
+      if (state.gameData.matchedPairs === DIFFICULTIES[state.gameData.currentDifficulty].pairs) {
         setTimeout(handleWin, MATCH_ANIM)
       }
     } else {
-      // ❌ No match — flip back
-      ca.flipped = cb.flipped = false
+      // ❌ No match
+      cardA.flipped = cardB.flipped = false
+      playSound('wrong')
+
       document.querySelector(`.card[data-id="${a}"]`)?.classList.remove('is-flipped')
       document.querySelector(`.card[data-id="${b}"]`)?.classList.remove('is-flipped')
-      score = Math.max(0, score - 1)
+
+      state.gameData.score = Math.max(0, state.gameData.score - 1)
       updateLiveStats()
-      resetTurn()
+      state.gameData.flippedCards = []
+      state.gameData.isChecking = false
     }
   }, FLIP_DELAY)
 }
 
 function handleWin() {
   stopTimer()
-  score += timeLeft * 2
-  gameState = 'won'
-  saveBestScore(currentDifficulty, score)
-  renderApp()
+  const finalScore = calculateFinalScore(
+    state.gameData.score,
+    state.gameData.timeLeft,
+    state.gameData.moves,
+    state.gameData.currentDifficulty
+  )
+  state.gameData.score = finalScore
+  state.gameData.gameState = 'won'
+  saveBestScore(state.gameData.currentDifficulty, finalScore)
+  state.bestScores = loadBestScores()
+  playSound('win')
+  render()
 }
 
 function goMenu() {
-  stopTimer(); gameState = 'idle'; renderApp()
+  stopTimer()
+  state.gameData.gameState = 'idle'
+  state.currentView = 'detail-level'
+  render()
 }
 
-function attachListeners() {
-  document.querySelectorAll<HTMLButtonElement>('.level-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      currentDifficulty = btn.dataset.diff as Difficulty
-      stopTimer(); gameState = 'idle'; renderApp()
-    })
+function showConfirmExit() {
+  state.currentView = 'confirm-exit'
+  render()
+}
+
+function cancelExit() {
+  state.currentView = 'game'
+  render()
+}
+
+// ── Event Listeners ────────────────────────────────────────────────────────
+function attachGlobalListeners() {
+  // Difficulty buttons - selalu bisa diklik untuk switch level (saat idle atau playing)
+  document.addEventListener('click', (e: Event) => {
+    const btn = (e.target as HTMLElement).closest('.level-btn')
+    if (btn) {
+      const diff = btn.getAttribute('data-diff') as Difficulty
+      changeDifficulty(diff)
+    }
   })
+
+  // Back to menu with confirmation
+  document.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Escape' && state.gameData.gameState === 'playing') {
+      showConfirmExit()
+    }
+  })
+}
+
+function attachEventListeners() {
+  // Start game
   document.getElementById('btn-start')?.addEventListener('click', startGame)
-  document.getElementById('btn-play-again')?.addEventListener('click', startGame)
-  document.getElementById('btn-menu')?.addEventListener('click', goMenu)
-  document.getElementById('board')?.addEventListener('click', e => {
-    const el = (e.target as HTMLElement).closest('.card') as HTMLElement
-    if (el) flipCard(parseInt(el.dataset.id!))
+
+  // Play again
+  document.getElementById('btn-play-again')?.addEventListener('click', () => {
+    state.currentView = 'game'
+    startGame()
   })
+
+  // Menu
+  document.getElementById('btn-menu')?.addEventListener('click', goMenu)
+  document.getElementById('btn-menu-timeout')?.addEventListener('click', goMenu)
+
+  // Retry after timeout
+  document.getElementById('btn-retry')?.addEventListener('click', startGame)
+
+  // Board click
+  document.getElementById('board')?.addEventListener('click', (e: Event) => {
+    const card = (e.target as HTMLElement).closest('.card') as HTMLElement
+    if (card) flipCard(parseInt(card.dataset.id!))
+  })
+
+  // Confirm exit
+  document.getElementById('btn-continue')?.addEventListener('click', cancelExit)
+  document.getElementById('btn-confirm-exit')?.addEventListener('click', goMenu)
+  document.getElementById('confirm-exit-bg')?.addEventListener('click', (e: Event) => {
+    if (e.target === document.getElementById('confirm-exit-bg')) cancelExit()
+  })
+
+  // Sound toggle
+  document.getElementById('btn-sound')?.addEventListener('click', () => {
+    state.soundEnabled = !state.soundEnabled
+    setSoundEnabled(state.soundEnabled)
+    saveSettings(state.soundEnabled, state.darkMode)
+    render()
+  })
+
+  // Dark mode toggle
+  document.getElementById('btn-dark')?.addEventListener('click', () => {
+    state.darkMode = !state.darkMode
+    saveSettings(state.soundEnabled, state.darkMode)
+    applyDarkMode(state.darkMode)
+    render()
+  })
+}
+
+function changeDifficulty(diff: Difficulty) {
+  // Stop timer jika sedang bermain
+  stopTimer()
+  
+  state.gameData.currentDifficulty = diff
+  state.gameData.gameState = 'idle'
+  state.currentView = 'detail-level'
+  render()
 }
 
 init()
