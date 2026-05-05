@@ -5,6 +5,7 @@ import { renderDifficultyNav } from './components/DifficultyNav'
 import { renderBoard } from './components/Board'
 import { renderWinScreen, renderTimeoutScreen } from './components/WinScreen'
 import { renderConfirmExit } from './components/ConfirmExit'
+import { renderFooter } from './components/Footer'
 import {
   DIFFICULTIES,
   FLIP_DELAY,
@@ -16,7 +17,7 @@ import { playSound, setSoundEnabled } from './utils/sounds'
 
 // ── Global State ───────────────────────────────────────────────────────────
 let state: AppState = {
-  currentView: 'detail-level',
+  currentView: 'home',
   gameData: {
     cards: [],
     flippedCards: [],
@@ -60,18 +61,24 @@ function applyDarkMode(isDark: boolean) {
 // ── Render ─────────────────────────────────────────────────────────────────
 function render() {
   app.innerHTML = `
+    ${renderHeader(state)}
     <div class="shell">
-      ${renderHeader(state)}
-      ${renderDifficultyNav(state)}
+      ${state.currentView === 'detail-level' ? renderDifficultyNav(state) : ''}
       <main id="main-area">
         ${renderMainContent()}
       </main>
     </div>
+    ${renderFooter()}
   `
   attachEventListeners()
 }
 
 function renderMainContent(): string {
+  // Tampil halaman home
+  if (state.currentView === 'home') {
+    return renderHome()
+  }
+
   // Tampil halaman detail level (dengan Play Now)
   if (state.currentView === 'detail-level' && state.gameData.gameState === 'idle') {
     return renderDifficultyDetail()
@@ -93,7 +100,22 @@ function renderMainContent(): string {
   return content
 }
 
-
+function renderHome(): string {
+  return `
+    <div class="home home--center">
+      <div class="home-card">
+        <div class="home-header">
+          <span class="home-icon">🎮</span>
+          <h1 class="home-title-main">MemFlip</h1>
+        </div>
+        <p class="home-subtitle">Test your memory skills!<br>Match all pairs to win.</p>
+        <button class="play-btn" id="btn-play">
+          ▶ &nbsp;Play
+        </button>
+      </div>
+    </div>
+  `
+}
 
 function renderDifficultyDetail(): string {
   const cfg = DIFFICULTIES[state.gameData.currentDifficulty]
@@ -274,7 +296,7 @@ function handleWin() {
 function goMenu() {
   stopTimer()
   state.gameData.gameState = 'idle'
-  state.currentView = 'detail-level'
+  state.currentView = 'home'
   render()
 }
 
@@ -308,6 +330,12 @@ function attachGlobalListeners() {
 }
 
 function attachEventListeners() {
+  // Play button (home → detail-level)
+  document.getElementById('btn-play')?.addEventListener('click', () => {
+    state.currentView = 'detail-level'
+    render()
+  })
+
   // Start game
   document.getElementById('btn-start')?.addEventListener('click', startGame)
 

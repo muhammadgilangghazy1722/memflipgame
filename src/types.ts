@@ -1,6 +1,6 @@
 export type Difficulty = 'easy' | 'medium' | 'hard'
 export type GameState = 'idle' | 'playing' | 'won' | 'timeout'
-export type ScreenView = 'select-level' | 'detail-level' | 'game' | 'confirm-exit'
+export type ScreenView = 'home' | 'select-level' | 'detail-level' | 'game' | 'confirm-exit'
 
 export interface Card {
   id: number
