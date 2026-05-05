@@ -1,8 +1,7 @@
 import './style.css'
-import type { AppState, Difficulty, GameState, ScreenView } from './types'
+import type { AppState, Difficulty } from './types'
 import { renderHeader } from './components/Header'
 import { renderDifficultyNav } from './components/DifficultyNav'
-import { renderMenu } from './components/Menu'
 import { renderBoard } from './components/Board'
 import { renderWinScreen, renderTimeoutScreen } from './components/WinScreen'
 import { renderConfirmExit } from './components/ConfirmExit'
@@ -10,7 +9,6 @@ import {
   DIFFICULTIES,
   FLIP_DELAY,
   MATCH_ANIM,
-  PREVIEW_DURATION,
 } from './utils/constants'
 import { buildCards, calculateFinalScore } from './utils/gameLogic'
 import { loadBestScores, saveBestScore, loadSettings, saveSettings } from './utils/storage'
@@ -95,26 +93,7 @@ function renderMainContent(): string {
   return content
 }
 
-function renderSelectLevel(): string {
-  return `
-    <div class="select-level-container">
-      <div class="select-level-cards">
-        ${(Object.keys(DIFFICULTIES) as Difficulty[]).map(d => {
-          const dc = DIFFICULTIES[d]
-          const best = state.bestScores[d]
-          return `
-            <button class="difficulty-card" data-diff="${d}" style="--lc:${dc.color}">
-              <div class="difficulty-card-icon">${dc.icon}</div>
-              <div class="difficulty-card-name">${dc.label}</div>
-              <div class="difficulty-card-info">${dc.cols}×${dc.rows} • ${dc.timeLimit}s</div>
-              ${best !== undefined ? `<div class="difficulty-card-best">🏆 ${best}</div>` : ''}
-            </button>
-          `
-        }).join('')}
-      </div>
-    </div>
-  `
-}
+
 
 function renderDifficultyDetail(): string {
   const cfg = DIFFICULTIES[state.gameData.currentDifficulty]
@@ -167,21 +146,7 @@ function startGame() {
   startTimer()
 }
 
-function updateBoard() {
-  const board = document.getElementById('board')
-  if (!board) return
-  board.innerHTML = state.gameData.cards.map(card => {
-    const cls = ['card', card.flipped ? 'is-flipped' : '', card.matched ? 'is-matched' : '']
-      .filter(Boolean)
-      .join(' ')
-    return `
-      <button class="${cls}" data-id="${card.id}" aria-label="Memory card">
-        <span class="card-face card-face--front"><span class="card-dot"></span></span>
-        <span class="card-face card-face--back">${card.emoji}</span>
-      </button>
-    `
-  }).join('')
-}
+
 
 function updateLiveStats() {
   const el = document.getElementById('live-stats')
