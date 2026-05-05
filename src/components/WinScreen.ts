@@ -1,4 +1,5 @@
 import type { AppState } from '../types'
+import { DIFFICULTIES } from '../utils/constants'
 
 export function renderWinScreen(state: AppState): string {
   const best = state.bestScores[state.gameData.currentDifficulty] ?? 0
@@ -35,7 +36,8 @@ export function renderWinScreen(state: AppState): string {
 
 export function renderTimeoutScreen(state: AppState): string {
   const { matchedPairs } = state.gameData
-  const { pairs } = state.gameData.currentDifficulty
+  const cfg = DIFFICULTIES[state.gameData.currentDifficulty]
+  const { pairs } = cfg
 
   return `
     <div class="modal-bg">

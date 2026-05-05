@@ -32,7 +32,7 @@ export function calculateScore(
 export function calculateFinalScore(
   score: number,
   timeLeft: number,
-  moves: number,
+  _moves: number,
   difficulty: Difficulty
 ): number {
   let finalScore = score

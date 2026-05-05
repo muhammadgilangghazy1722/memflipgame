@@ -1,4 +1,5 @@
 import type { AppState } from '../types'
+import { DIFFICULTIES } from '../utils/constants'
 
 export function renderHeader(state: AppState): string {
   const liveStats = state.gameData.gameState === 'playing' ? renderLiveStats(state) : ''
@@ -24,7 +25,8 @@ export function renderHeader(state: AppState): string {
 
 function renderLiveStats(state: AppState): string {
   const { timeLeft, moves, score } = state.gameData
-  const { timeLimit } = state.gameData.currentDifficulty
+  const cfg = DIFFICULTIES[state.gameData.currentDifficulty]
+  const { timeLimit } = cfg
   const pct = (timeLeft / timeLimit) * 100
   const urgent = timeLeft <= 20
 
