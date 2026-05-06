@@ -801,11 +801,16 @@ body {
 
 :root.dark-mode body {
   background: var(--off);
-  background-image: radial-gradient(circle, #3a3a42 1px, transparent 1px);
+  background-image: radial-gradient(circle, #4a4a58 1px, transparent 1px);
+  background-size: 28px 28px;
 }
 
 :root.dark-mode .topbar {
   background: transparent;
+}
+
+:root.dark-mode .home-title {
+  color: #e0e8ff;
 }
 
 :root.dark-mode .home-title em {

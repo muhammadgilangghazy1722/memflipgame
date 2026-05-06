@@ -170,7 +170,7 @@ function renderDifficultyDetail(): string {
         <button class="play-btn" id="btn-start">
           ▶ &nbsp;Play Now
         </button>
-        <p class="home-hint">Flip two cards — find the matching pair!</p>
+        <p class="home-hint">Flip two cards & find the matching pair!</p>
       </div>
 
       <div class="preview-grid" style="--cols:${cfg.cols}">
