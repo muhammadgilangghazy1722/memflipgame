@@ -30,6 +30,8 @@ export interface GameData {
   gameState: GameState
   currentDifficulty: Difficulty
   isChecking: boolean
+  isPaused: boolean
+  isPauseExitConfirm: boolean
 }
 
 export interface AppState {

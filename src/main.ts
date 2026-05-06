@@ -28,6 +28,8 @@ let state: AppState = {
     gameState: 'idle',
     currentDifficulty: 'easy',
     isChecking: false,
+    isPaused: false,
+    isPauseExitConfirm: false,
   },
   bestScores: {},
   soundEnabled: true,
@@ -87,6 +89,38 @@ function renderMainContent(): string {
   // Tampil board game
   let content = renderBoard(state)
 
+  // Pause overlay
+  if (state.gameData.isPaused) {
+    if (state.gameData.isPauseExitConfirm) {
+      // Show exit confirmation modal
+      content += `
+        <div class="pause-overlay">
+          <div class="pause-modal">
+            <div class="pause-title">Exit Game?</div>
+            <p class="pause-subtitle">Are you sure you want to exit?</p>
+            <div class="modal-buttons">
+              <button class="play-btn" id="btn-confirm-pause-exit">Yes, Exit</button>
+              <button class="ghost-btn" id="btn-cancel-pause-exit">No, Continue</button>
+            </div>
+          </div>
+        </div>
+      `
+    } else {
+      // Show pause modal
+      content += `
+        <div class="pause-overlay">
+          <div class="pause-modal">
+            <div class="pause-title">⏸ PAUSED</div>
+            <div class="modal-buttons">
+              <button class="play-btn" id="btn-resume-pause">Resume Game</button>
+              <button class="ghost-btn" id="btn-pause-exit">Exit</button>
+            </div>
+          </div>
+        </div>
+      `
+    }
+  }
+
   if (state.gameData.gameState === 'won') {
     content += renderWinScreen(state)
   } else if (state.gameData.gameState === 'timeout') {
@@ -108,7 +142,7 @@ function renderHome(): string {
           <span class="home-icon">🎮</span>
           <h1 class="home-title-main">MemFlip</h1>
         </div>
-        <p class="home-subtitle">Test your memory skills!<br>Match all pairs to win.</p>
+        <p class="home-subtitle">Test your memory skills!<br>Match all pairs to win</p>
         <button class="play-btn" id="btn-play">
           ▶ &nbsp;Play
         </button>
@@ -192,18 +226,53 @@ function startTimer() {
   if (timerInterval) clearInterval(timerInterval)
 
   timerInterval = setInterval(() => {
-    state.gameData.timeLeft--
-    updateLiveStats()
+    if (!state.gameData.isPaused) {
+      state.gameData.timeLeft--
+      updateLiveStats()
 
-    if (state.gameData.timeLeft <= 0) {
-      clearInterval(timerInterval!)
-      handleTimeout()
+      if (state.gameData.timeLeft <= 0) {
+        clearInterval(timerInterval!)
+        handleTimeout()
+      }
     }
   }, 1000)
 }
 
 function stopTimer() {
   if (timerInterval) clearInterval(timerInterval)
+}
+
+function pauseGame() {
+  if (state.gameData.gameState !== 'playing') return
+  state.gameData.isPaused = true
+  render()
+}
+
+function resumeGame() {
+  if (state.gameData.gameState !== 'playing') return
+  state.gameData.isPaused = false
+  state.gameData.isPauseExitConfirm = false
+  render()
+}
+
+function showPauseExitConfirm() {
+  state.gameData.isPauseExitConfirm = true
+  render()
+}
+
+function cancelPauseExit() {
+  state.gameData.isPaused = false
+  state.gameData.isPauseExitConfirm = false
+  render()
+}
+
+function confirmPauseExit() {
+  stopTimer()
+  state.gameData.gameState = 'idle'
+  state.gameData.isPaused = false
+  state.gameData.isPauseExitConfirm = false
+  state.currentView = 'detail-level'
+  render()
 }
 
 function handleTimeout() {
@@ -379,6 +448,34 @@ function attachEventListeners() {
     saveSettings(state.soundEnabled, state.darkMode)
     applyDarkMode(state.darkMode)
     render()
+  })
+
+  // Pause toggle
+  document.getElementById('btn-pause')?.addEventListener('click', () => {
+    if (state.gameData.isPaused) {
+      resumeGame()
+    } else {
+      pauseGame()
+    }
+  })
+
+  // Resume from pause modal
+  document.getElementById('btn-resume-pause')?.addEventListener('click', () => {
+    resumeGame()
+  })
+
+  // Exit from pause modal
+  document.getElementById('btn-pause-exit')?.addEventListener('click', () => {
+    showPauseExitConfirm()
+  })
+
+  // Pause exit confirmation
+  document.getElementById('btn-confirm-pause-exit')?.addEventListener('click', () => {
+    confirmPauseExit()
+  })
+
+  document.getElementById('btn-cancel-pause-exit')?.addEventListener('click', () => {
+    cancelPauseExit()
   })
 }
 

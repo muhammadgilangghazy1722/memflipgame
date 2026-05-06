@@ -3,23 +3,27 @@ import { DIFFICULTIES } from '../utils/constants'
 
 export function renderHeader(state: AppState): string {
   const liveStats = state.gameData.gameState === 'playing' ? renderLiveStats(state) : ''
+  const isPaused = state.gameData.isPaused
 
   return `
     <header class="topbar">
-      <div class="topbar-content">
-        <div class="brand">
-          <span class="brand-icon">🃏</span>
-          <span class="brand-name">MemFlip</span>
-        </div>
-        <div class="live-stats" id="live-stats">${liveStats}</div>
-        <div class="header-controls">
-          <button class="icon-btn" id="btn-sound" title="Sound" data-active="${state.soundEnabled}">
-            ${state.soundEnabled ? '🔊' : '🔇'}
+      <div class="brand">
+        <span class="brand-icon">🃏</span>
+        <span class="brand-name">MemFlip</span>
+      </div>
+      <div class="live-stats" id="live-stats">${liveStats}</div>
+      <div class="header-controls">
+        ${state.gameData.gameState === 'playing' ? `
+          <button class="icon-btn" id="btn-pause" title="${isPaused ? 'Resume' : 'Pause'}">
+            ${isPaused ? '▶️' : '⏸'}
           </button>
-          <button class="icon-btn" id="btn-dark" title="Dark Mode" data-active="${state.darkMode}">
-            ${state.darkMode ? '🌙' : '☀️'}
-          </button>
-        </div>
+        ` : ''}
+        <button class="icon-btn" id="btn-sound" title="Sound" data-active="${state.soundEnabled}">
+          ${state.soundEnabled ? '🔊' : '🔇'}
+        </button>
+        <button class="icon-btn" id="btn-dark" title="Dark Mode" data-active="${state.darkMode}">
+          ${state.darkMode ? '🌙' : '☀️'}
+        </button>
       </div>
     </header>
   `
