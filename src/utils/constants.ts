@@ -17,7 +17,7 @@ export const DIFFICULTIES: Record<Difficulty, DifficultyConfig> = {
     rows: 4,
     pairs: 10,
     timeLimit: 150,
-    color: '#0793DE',
+    color: '#FBBF24',
   },
   hard: {
     label: 'Hard',
