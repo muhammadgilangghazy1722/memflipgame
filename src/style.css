@@ -915,6 +915,7 @@ body {
   
   .header-controls {
     order: 1;
+    margin-right: -0.75rem;
   }
   
   .level-nav {
@@ -960,6 +961,10 @@ body {
   .topbar-content {
     gap: 0.3rem;
     padding: 0 0.5rem;
+  }
+
+  .header-controls {
+    margin-right: -0.5rem;
   }
   
   .brand {
@@ -1092,6 +1097,7 @@ body {
   .header-controls {
     display: flex;
     gap: 0.3rem;
+    margin-right: -0.5rem;
   }
   
   .icon-btn {
@@ -1169,6 +1175,10 @@ body {
   
   .topbar {
     padding: 0.6rem 0.4rem;
+  }
+  
+  .header-controls {
+    margin-right: -0.4rem;
   }
   
   .topbar-content {

@@ -179,7 +179,7 @@ function renderDifficultyDetail(): string {
           .join('')}
       </div>
     </div>
-  `
+  ` 
 }
 
 // ── Game Logic ─────────────────────────────────────────────────────────────
