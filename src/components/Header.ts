@@ -1,5 +1,6 @@
 import type { AppState } from '../types'
 import { DIFFICULTIES } from '../utils/constants'
+import logoSvg from '../assets/logo.svg'
 
 export function renderHeader(state: AppState): string {
   const liveStats = state.gameData.gameState === 'playing' ? renderLiveStats(state) : ''
@@ -8,8 +9,7 @@ export function renderHeader(state: AppState): string {
   return `
     <header class="topbar">
       <div class="brand">
-        <span class="brand-icon">🃏</span>
-        <span class="brand-name">MemFlip</span>
+        <img src="${logoSvg}" alt="MemFlip Logo" class="brand-logo">
       </div>
       <div class="live-stats" id="live-stats">${liveStats}</div>
       <div class="header-controls">

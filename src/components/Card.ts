@@ -12,7 +12,7 @@ export function renderCard(card: Card): string {
   return `
     <button class="${cls}" data-id="${card.id}" aria-label="Memory card">
       <span class="card-face card-face--front">
-        <span class="card-dot"></span>
+        <span class="card-dot">⭐</span>
       </span>
       <span class="card-face card-face--back">${card.emoji}</span>
     </button>

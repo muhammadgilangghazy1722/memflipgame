@@ -1,0 +1,17 @@
+<svg width="480" height="120" viewBox="0 0 480 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Card 1 — tilted left, white, owl -->
+  <g transform="translate(72,60) rotate(-10)">
+    <rect x="-36" y="-48" width="72" height="96" rx="12" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+    <text x="0" y="16" text-anchor="middle" font-size="38">🦉</text>
+  </g>
+
+  <!-- Card 2 — tilted right, lavender, star -->
+  <g transform="translate(108,56) rotate(10)">
+    <rect x="-36" y="-48" width="72" height="96" rx="12" fill="#eef0f8" stroke="#dde0f0" stroke-width="1.5"/>
+    <polygon points="0,-22 6,-8 20,-8 10,2 14,16 0,8 -14,16 -10,2 -20,-8 -6,-8"
+             fill="#b0b4c8" stroke="#8a8fa8" stroke-width="1.2" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Brand name -->
+  <text x="158" y="75" font-size="52" fill="#1e1b4b" font-family="Nunito, sans-serif" font-weight="900">Mem<tspan fill="#8b5cf6">Flip</tspan></text>
+</svg>

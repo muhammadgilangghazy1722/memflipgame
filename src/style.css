@@ -89,6 +89,11 @@ body {
 .brand-icon { 
   font-size: clamp(1.1rem, 4.5vw, 1.4rem); 
 }
+.brand-logo {
+  height: clamp(40px, 7vw, 56px);
+  width: auto;
+  display: block;
+}
 
 /* ── Live stats ──────────────────────────────────────────── */
 .live-stats {
@@ -481,11 +486,12 @@ body {
 }
 
 .card-dot {
-  width: 32%;
-  height: 32%;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #d4d4f0, #b8b8d8);
-  opacity: 0.6;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: grayscale(1) brightness(0.6);
+  opacity: 0.8;
 }
 
 .card.is-matched .card-face--back {
@@ -1230,6 +1236,6 @@ body {
 /* High DPI displays */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   .card-dot {
-    background: radial-gradient(circle at 35% 35%, #d4d4f0, #b8b8d8 70%);
+    opacity: 0.8;
   }
 }

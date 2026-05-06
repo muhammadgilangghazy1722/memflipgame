@@ -1,0 +1,14 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Card 1 — tilted left, white, owl -->
+  <g transform="translate(35,50) rotate(-15)">
+    <rect x="-18" y="-24" width="36" height="48" rx="6" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="0" y="8" text-anchor="middle" font-size="18">🦉</text>
+  </g>
+
+  <!-- Card 2 — tilted right, lavender, star -->
+  <g transform="translate(55,45) rotate(15)">
+    <rect x="-18" y="-24" width="36" height="48" rx="6" fill="#eef0f8" stroke="#dde0f0" stroke-width="1"/>
+    <polygon points="0,-10 3,-4 10,-4 5,1 7,8 0,4 -7,8 -5,1 -10,-4 -3,-4"
+             fill="#b0b4c8" stroke="#8a8fa8" stroke-width="0.5" stroke-linejoin="round"/>
+  </g>
+</svg>
