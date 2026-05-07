@@ -63,6 +63,7 @@ body {
   opacity: 1 !important;
   width: 100%;
   gap: clamp(1rem, 2vw, 1.5rem);
+  z-index: 300;
 }
 
 .topbar-content {
