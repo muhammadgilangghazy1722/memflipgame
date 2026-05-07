@@ -964,7 +964,7 @@ body {
   }
 
   .header-controls {
-    margin-right: -0.5rem;
+    margin-right: -1rem;
   }
   
   .brand {
@@ -1097,7 +1097,7 @@ body {
   .header-controls {
     display: flex;
     gap: 0.3rem;
-    margin-right: -0.5rem;
+    margin-right: -0.75rem;
   }
   
   .icon-btn {
@@ -1178,7 +1178,7 @@ body {
   }
   
   .header-controls {
-    margin-right: -0.4rem;
+    margin-right: -0.65rem;
   }
   
   .topbar-content {
