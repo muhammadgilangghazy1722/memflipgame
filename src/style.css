@@ -391,6 +391,15 @@ body {
   animation: pop-in 0.4s ease both;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 8px 24px rgba(0, 0, 0, 0.08);
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-card .card-dot {
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  filter: grayscale(1) brightness(0.6);
+  opacity: 0.7;
 }
 
 @keyframes pop-in {
@@ -399,12 +408,12 @@ body {
 }
 
 /* Color the preview cards nicely */
-.preview-card:nth-child(6n+1)  { background: #fca5a5; }
-.preview-card:nth-child(6n+2)  { background: #fdba74; }
-.preview-card:nth-child(6n+3)  { background: #fde047; }
-.preview-card:nth-child(6n+4)  { background: #86efac; }
-.preview-card:nth-child(6n+5)  { background: #93c5fd; }
-.preview-card:nth-child(6n+6)  { background: #d8b4fe; }
+.preview-card:nth-child(6n+1)  { background: #e6d5f0; }
+.preview-card:nth-child(6n+2)  { background: #e6d5f0; }
+.preview-card:nth-child(6n+3)  { background: #e6d5f0; }
+.preview-card:nth-child(6n+4)  { background: #e6d5f0; }
+.preview-card:nth-child(6n+5)  { background: #e6d5f0; }
+.preview-card:nth-child(6n+6)  { background: #e6d5f0; }
 
 /* ── Board ───────────────────────────────────────────────── */
 .board-wrap {
@@ -865,6 +874,10 @@ body {
 
 :root.dark-mode .pause-title {
   color: #e0e8ff;
+}
+
+:root.dark-mode .preview-card {
+  background: #3a3a47 !important;
 }
 
 /* ── Footer ──────────────────────────────────────────────── */

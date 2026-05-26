@@ -176,7 +176,7 @@ function renderDifficultyDetail(): string {
 
       <div class="preview-grid" style="--cols:${cfg.cols}">
         ${Array.from({ length: cfg.cols * cfg.rows })
-          .map((_, i) => `<div class="preview-card" style="animation-delay:${i * 0.04}s"></div>`)
+          .map((_, i) => `<div class="preview-card" style="animation-delay:${i * 0.04}s"><span class="card-dot">⭐</span></div>`)
           .join('')}
       </div>
     </div>
