@@ -804,9 +804,9 @@ body {
 :root.dark-mode {
   --white:   #1a1a22;
   --off:     #0f0f15;
-  --gray50:  #2a2a33;
-  --gray100: #3a3a42;
-  --gray200: #4a4a52;
+  --gray50:  #353d47;
+  --gray100: #454d56;
+  --gray200: #555d66;
   --gray400: #8888a0;
   --gray700: #c0c0d0;
   --gray900: #f0f0f8;
