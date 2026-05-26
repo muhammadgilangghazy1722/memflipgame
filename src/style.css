@@ -953,7 +953,7 @@ body {
   .header-controls {
     position: absolute;
     top: clamp(0.6rem, 2.5vw, 0.85rem);
-    right: clamp(0.6rem, 2.5vw, 0.85rem);
+    right: clamp(1.5rem, 4vw, 2rem);
     order: unset;
     margin-right: 0;
   }
@@ -1002,7 +1002,7 @@ body {
   .header-controls {
     position: absolute;
     top: clamp(0.5rem, 2vw, 0.75rem);
-    right: clamp(0.5rem, 2vw, 0.75rem);
+    right: clamp(1.5rem, 4vw, 2rem);
   }
   
   .topbar-content {
@@ -1142,9 +1142,11 @@ body {
   }
   
   .header-controls {
+    position: absolute;
+    right: clamp(1rem, 3vw, 1.5rem);
+    top: clamp(0.5rem, 2vw, 0.7rem);
     display: flex;
     gap: 0.3rem;
-    margin-right: -0.75rem;
   }
   
   .icon-btn {
@@ -1225,7 +1227,9 @@ body {
   }
   
   .header-controls {
-    margin-right: -0.65rem;
+    position: absolute;
+    right: clamp(0.8rem, 2.5vw, 1.2rem);
+    top: clamp(0.45rem, 1.5vw, 0.65rem);
   }
   
   .topbar-content {
