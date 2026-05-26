@@ -642,6 +642,15 @@ body {
   font-weight: 700;
   color: var(--gray900);
   margin-bottom: clamp(1.5rem, 4vw, 2rem);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.pause-title .icon-svg {
+  width: clamp(1.8rem, 7vw, 2.2rem);
+  height: clamp(1.8rem, 7vw, 2.2rem);
 }
 
 .pause-subtitle {
@@ -852,6 +861,10 @@ body {
 
 :root.dark-mode .icon-svg {
   color: #c0d8ff;
+}
+
+:root.dark-mode .pause-title {
+  color: #e0e8ff;
 }
 
 /* ── Footer ──────────────────────────────────────────────── */

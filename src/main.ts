@@ -6,6 +6,7 @@ import { renderBoard } from './components/Board'
 import { renderWinScreen, renderTimeoutScreen } from './components/WinScreen'
 import { renderConfirmExit } from './components/ConfirmExit'
 import { renderFooter } from './components/Footer'
+import pauseIcon from './assets/pause-icon.svg'
 import {
   DIFFICULTIES,
   FLIP_DELAY,
@@ -110,7 +111,7 @@ function renderMainContent(): string {
       content += `
         <div class="pause-overlay">
           <div class="pause-modal">
-            <div class="pause-title">⏸ PAUSED</div>
+            <div class="pause-title"><img src="${pauseIcon}" alt="Pause" class="icon-svg"> PAUSED</div>
             <div class="modal-buttons">
               <button class="play-btn" id="btn-resume-pause">Resume Game</button>
               <button class="ghost-btn" id="btn-pause-exit">Exit</button>

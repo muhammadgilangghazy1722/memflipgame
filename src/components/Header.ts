@@ -3,6 +3,10 @@ import { DIFFICULTIES } from '../utils/constants'
 import logoSvg from '../assets/logo.svg'
 import pauseIcon from '../assets/pause-icon.svg'
 import playIcon from '../assets/play-icon.svg'
+import volumeIcon from '../assets/volume.png'
+import muteIcon from '../assets/mute.png'
+import darkmodeIcon from '../assets/darkmode.png'
+import lightmodeIcon from '../assets/lightmode.png'
 
 export function renderHeader(state: AppState): string {
   const liveStats = state.gameData.gameState === 'playing' ? renderLiveStats(state) : ''
@@ -21,10 +25,10 @@ export function renderHeader(state: AppState): string {
           </button>
         ` : ''}
         <button class="icon-btn" id="btn-sound" title="Sound" data-active="${state.soundEnabled}">
-          ${state.soundEnabled ? '🔊' : '🔇'}
+          <img src="${state.soundEnabled ? volumeIcon : muteIcon}" alt="${state.soundEnabled ? 'Sound On' : 'Sound Off'}" class="icon-svg">
         </button>
         <button class="icon-btn" id="btn-dark" title="Dark Mode" data-active="${state.darkMode}">
-          ${state.darkMode ? '🌙' : '☀️'}
+          <img src="${state.darkMode ? darkmodeIcon : lightmodeIcon}" alt="${state.darkMode ? 'Dark Mode' : 'Light Mode'}" class="icon-svg">
         </button>
       </div>
     </header>
