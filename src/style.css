@@ -907,6 +907,14 @@ body {
 @media (min-width: 1200px) {
   .shell { max-width: 900px; padding: 2rem; }
   .home-card { padding: 2.5rem 2rem; }
+  
+  .topbar {
+    position: static;
+  }
+  
+  .header-controls {
+    position: static;
+  }
 }
 
 /* Tablet Landscape */
@@ -919,6 +927,10 @@ body {
 @media (max-width: 768px) {
   body {
     background-size: 24px 24px;
+  }
+  
+  .topbar {
+    position: relative;
   }
   
   .home { 
@@ -939,8 +951,11 @@ body {
   }
   
   .header-controls {
-    order: 1;
-    margin-right: -0.75rem;
+    position: absolute;
+    top: clamp(0.6rem, 2.5vw, 0.85rem);
+    right: clamp(0.6rem, 2.5vw, 0.85rem);
+    order: unset;
+    margin-right: 0;
   }
   
   .level-nav {
@@ -981,6 +996,13 @@ body {
   
   .topbar {
     padding: 0.75rem 0.5rem;
+    position: relative;
+  }
+  
+  .header-controls {
+    position: absolute;
+    top: clamp(0.5rem, 2vw, 0.75rem);
+    right: clamp(0.5rem, 2vw, 0.75rem);
   }
   
   .topbar-content {
