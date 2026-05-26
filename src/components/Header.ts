@@ -1,6 +1,8 @@
 import type { AppState } from '../types'
 import { DIFFICULTIES } from '../utils/constants'
 import logoSvg from '../assets/logo.svg'
+import pauseIcon from '../assets/pause-icon.svg'
+import playIcon from '../assets/play-icon.svg'
 
 export function renderHeader(state: AppState): string {
   const liveStats = state.gameData.gameState === 'playing' ? renderLiveStats(state) : ''
@@ -15,7 +17,7 @@ export function renderHeader(state: AppState): string {
       <div class="header-controls">
         ${state.gameData.gameState === 'playing' ? `
           <button class="icon-btn" id="btn-pause" title="${isPaused ? 'Resume' : 'Pause'}">
-            ${isPaused ? '▶️' : '⏸'}
+            <img src="${isPaused ? playIcon : pauseIcon}" alt="${isPaused ? 'Resume' : 'Pause'}" class="icon-svg">
           </button>
         ` : ''}
         <button class="icon-btn" id="btn-sound" title="Sound" data-active="${state.soundEnabled}">

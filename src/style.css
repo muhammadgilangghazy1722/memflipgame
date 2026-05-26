@@ -768,6 +768,13 @@ body {
   transform: scale(0.95);
 }
 
+.icon-svg {
+  width: 60%;
+  height: 60%;
+  color: var(--gray900);
+  display: block;
+}
+
 /* ── Modal buttons container ─────────────────────────────── */
 .modal-buttons {
   display: flex;
@@ -841,6 +848,10 @@ body {
 
 :root.dark-mode .difficulty-card:hover {
   box-shadow: 0 12px 24px color-mix(in srgb, var(--lc) 40%, transparent);
+}
+
+:root.dark-mode .icon-svg {
+  color: #c0d8ff;
 }
 
 /* ── Footer ──────────────────────────────────────────────── */
