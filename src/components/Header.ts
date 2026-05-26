@@ -4,7 +4,7 @@ import logoSvg from '../assets/logo.svg'
 import pauseIcon from '../assets/pause-icon.svg'
 import playIcon from '../assets/play-icon.svg'
 import volumeIcon from '../assets/volume.png'
-import muteIcon from '../assets/mute.png'
+import muteIcon from '../assets/mute new.png'
 import darkmodeIcon from '../assets/darkmode.png'
 import lightmodeIcon from '../assets/lightmode.png'
 
